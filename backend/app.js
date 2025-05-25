@@ -20,12 +20,16 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 // Routes Import
-import userRoute from './routes/user.routes.js';
-import noteRoute from './routes/note.routes.js';
+import userRoute from './routes/user.route.js';
+import blogRoute from './routes/blogs.route.js';
+import commentRoute from './routes/comments.route.js';
+import reviewRoute from './routes/reviews.route.js';
 
 // Routes Declaration
 app.use('/api/users', userRoute);
-app.use('/api/notes', noteRoute);
+app.use('/api/blogs', blogRoute);
+app.use('/api/comments', commentRoute);
+app.use('/api/reviews', reviewRoute);
 
 // 404 handler for unknown API routes
 app.use((req, res, next) => {
