@@ -2,19 +2,27 @@ import mongoose, { Schema } from 'mongoose';
 
 const commentSchema = new Schema(
   {
-    user: {
+    author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
-    post: {
+    blog: {
       type: Schema.Types.ObjectId,
       ref: 'Blog',
       required: true
     },
     content: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      minlength: 1,
+      maxlength: 500
+    },
+    parentComment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null
     }
   },
   {

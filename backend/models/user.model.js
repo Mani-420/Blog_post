@@ -7,12 +7,16 @@ const userSchema = new Schema(
     username: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 20
     },
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      lowercase: true
     },
     avatar: {
       type: String, // cloudinary url
@@ -23,7 +27,8 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required']
+      required: [true, 'Password is required'],
+      minlength: 6
     },
     refreshToken: {
       type: String

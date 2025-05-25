@@ -4,7 +4,10 @@ const reviewSchema = new Schema(
   {
     comment: {
       type: String,
-      required: true
+      required: true,
+      maxlength: 300,
+      minlength: 1,
+      trim: true
     },
     rating: {
       type: Number,
@@ -12,14 +15,15 @@ const reviewSchema = new Schema(
       min: 1,
       max: 5
     },
-    user: {
+    author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
-    createdAt: {
-      type: Date,
-      default: Date.now()
+    blog: {
+      type: Schema.Types.ObjectId,
+      ref: 'Blog',
+      required: true
     }
   },
   { timeStamps: true }
