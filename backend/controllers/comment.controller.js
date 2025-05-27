@@ -35,9 +35,9 @@ const createComment = asyncHandler(async (req, res) => {
 
   await comment.populate('author', '-password -refreshToken');
 
-  return res.status(201).json(
-    new ApiResponse(201, { comment }, 'Comment created successfully')
-  );
+  return res
+    .status(201)
+    .json(new ApiResponse(201, { comment }, 'Comment created successfully'));
 });
 
 // Get all comments for a blog
@@ -54,9 +54,9 @@ const getCommentsByBlog = asyncHandler(async (req, res) => {
   }
 
   // Get only parent comments (not replies)
-  const comments = await Comment.find({ 
-    blog: blogId, 
-    parentComment: null 
+  const comments = await Comment.find({
+    blog: blogId,
+    parentComment: null
   })
     .populate('author', '-password -refreshToken')
     .sort({ createdAt: -1 })
@@ -69,7 +69,7 @@ const getCommentsByBlog = asyncHandler(async (req, res) => {
       const replies = await Comment.find({ parentComment: comment._id })
         .populate('author', '-password -refreshToken')
         .sort({ createdAt: 1 });
-      
+
       return {
         ...comment.toObject(),
         replies
@@ -77,21 +77,25 @@ const getCommentsByBlog = asyncHandler(async (req, res) => {
     })
   );
 
-  const total = await Comment.countDocuments({ 
-    blog: blogId, 
-    parentComment: null 
+  const total = await Comment.countDocuments({
+    blog: blogId,
+    parentComment: null
   });
 
   return res.status(200).json(
-    new ApiResponse(200, {
-      comments: commentsWithReplies,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    }, 'Comments fetched successfully')
+    new ApiResponse(
+      200,
+      {
+        comments: commentsWithReplies,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      },
+      'Comments fetched successfully'
+    )
   );
 });
 
@@ -119,9 +123,9 @@ const updateComment = asyncHandler(async (req, res) => {
 
   await comment.populate('author', '-password -refreshToken');
 
-  return res.status(200).json(
-    new ApiResponse(200, { comment }, 'Comment updated successfully')
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { comment }, 'Comment updated successfully'));
 });
 
 // Delete comment (Protected route - only author can delete)
@@ -140,51 +144,13 @@ const deleteComment = asyncHandler(async (req, res) => {
 
   // Delete all replies to this comment
   await Comment.deleteMany({ parentComment: id });
-  
+
   // Delete the comment itself
   await Comment.findByIdAndDelete(id);
 
-  return res.status(200).json(
-    new ApiResponse(200, {}, 'Comment deleted successfully')
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Comment deleted successfully'));
 });
 
-// Like/Unlike comment (Protected route)
-const toggleCommentLike = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const comment = await Comment.findById(id);
-  if (!comment) {
-    throw new ApiError('Comment not found', 404);
-  }
-
-  const userId = req.user._id;
-  const isLiked = comment.likes.includes(userId);
-
-  if (isLiked) {
-    // Unlike the comment
-    comment.likes = comment.likes.filter(
-      (like) => like.toString() !== userId.toString()
-    );
-  } else {
-    // Like the comment
-    comment.likes.push(userId);
-  }
-
-  await comment.save();
-
-  return res.status(200).json(
-    new ApiResponse(200, { 
-      isLiked: !isLiked,
-      likesCount: comment.likes.length 
-    }, `Comment ${isLiked ? 'unliked' : 'liked'} successfully`)
-  );
-});
-
-export {
-  createComment,
-  getCommentsByBlog,
-  updateComment,
-  deleteComment,
-  toggleCommentLike
-};
+export { createComment, getCommentsByBlog, updateComment, deleteComment };
