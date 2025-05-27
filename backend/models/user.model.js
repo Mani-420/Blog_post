@@ -19,8 +19,7 @@ const userSchema = new Schema(
       lowercase: true
     },
     avatar: {
-      type: String, // cloudinary url
-      required: true
+      type: String // cloudinary url
     },
     coverImage: {
       type: String // cloudinary url
@@ -28,7 +27,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: 6
+      minlength: 5
     },
     refreshToken: {
       type: String
