@@ -17,7 +17,7 @@ router.route('/:id').get(getBlog);
 router.route('/author/:authorId').get(getBlogsByAuthor);
 
 // Protected routes
-router.route('/').post(verifyJWT, createBlog);
+router.route('/create').post(verifyJWT, createBlog);
 router.route('/:id').put(verifyJWT, updateBlog);
 router.route('/:id').delete(verifyJWT, deleteBlog);
 
