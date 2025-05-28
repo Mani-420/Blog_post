@@ -1,0 +1,329 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import {
+  createBlogSuccess,
+  setCreatingBlog,
+  setBlogError
+} from '../redux/blogSlice';
+import { blogService } from '../services/blogService';
+
+const CreateBlog = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isCreating, error } = useSelector((state) => state.blogs);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    content: '',
+    category: '',
+    tags: ''
+  });
+
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleContentChange = (content) => {
+    setFormData((prev) => ({
+      ...prev,
+      content
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!formData.title.trim()) {
+      dispatch(setBlogError('Title is required'));
+      return;
+    }
+
+    if (!formData.content.trim() || formData.content === '<p><br></p>') {
+      dispatch(setBlogError('Content is required'));
+      return;
+    }
+
+    dispatch(setCreatingBlog(true));
+    dispatch(setBlogError(null));
+
+    try {
+      // Prepare data for backend
+      const blogData = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        content: formData.content,
+        category: formData.category.trim() || undefined,
+        tags: formData.tags.trim()
+          ? formData.tags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter((tag) => tag)
+          : undefined
+      };
+
+      const response = await blogService.createBlog(blogData);
+      dispatch(createBlogSuccess(response.data.blog));
+
+      // Show success message
+      alert('Blog created successfully!');
+
+      // Redirect to dashboard or blog detail
+      navigate('/dashboard');
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || 'Failed to create blog';
+      dispatch(setBlogError(errorMessage));
+    } finally {
+      dispatch(setCreatingBlog(false));
+    }
+  };
+
+  const handleCancel = () => {
+    if (
+      window.confirm(
+        'Are you sure you want to cancel? All changes will be lost.'
+      )
+    ) {
+      navigate('/dashboard');
+    }
+  };
+
+  // Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      ['link', 'image'],
+      ['blockquote', 'code-block'],
+      [{ align: [] }],
+      [{ color: [] }, { background: [] }],
+      ['clean']
+    ]
+  };
+
+  const formats = [
+    'header',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'list',
+    'bullet',
+    'indent',
+    'link',
+    'image',
+    'blockquote',
+    'code-block',
+    'align',
+    'color',
+    'background'
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Create New Blog
+          </h1>
+          <p className="text-gray-600">Share your thoughts with the world</p>
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-md p-8"
+        >
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Title */}
+          <div className="mb-6">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Title *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Enter your blog title..."
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div className="mb-6">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Brief description of your blog..."
+              rows="3"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Category and Tags Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Category */}
+            <div>
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Category
+              </label>
+              <input
+                type="text"
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                placeholder="e.g., Technology, Travel, Food..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label
+                htmlFor="tags"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Tags
+              </label>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                placeholder="Separate tags with commas: react, javascript, web..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Separate multiple tags with commas
+              </p>
+            </div>
+          </div>
+
+          {/* Content - Rich Text Editor */}
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Content *
+            </label>
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <ReactQuill
+                theme="snow"
+                value={formData.content}
+                onChange={handleContentChange}
+                modules={modules}
+                formats={formats}
+                placeholder="Write your amazing blog content here..."
+                style={{ height: '400px' }}
+              />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Use the toolbar above to format your content with headers, bold
+              text, lists, links, and more.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-12">
+            <button
+              type="submit"
+              disabled={isCreating}
+              className="flex-1 bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {isCreating ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Creating Blog...
+                </span>
+              ) : (
+                '📝 Create Blog'
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={isCreating}
+              className="flex-1 sm:flex-none bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+
+          {/* Preview Note */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <strong>💡 Tip:</strong> You can use the rich text editor to
+              format your content with headers, bold text, lists, links, images,
+              and more. Your blog will be saved exactly as you see it here.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateBlog;
