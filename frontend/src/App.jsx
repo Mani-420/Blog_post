@@ -6,6 +6,23 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route
+          path="/edit-blog/:id"
+          element={
+            <ProtectedRoute>
+              <EditBlog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-blog"
+          element={
+            <ProtectedRoute>
+              <CreateBlog />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/view-blog/:id" element={<ViewBlog />} />
       </Routes>
     </BrowserRouter>
   );
