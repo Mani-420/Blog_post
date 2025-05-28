@@ -1,32 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  // Blog lists
-  blogs: [], // All blogs for home page
-  userBlogs: [], // Current user's blogs
-  currentBlog: null, // Single blog being viewed
-
-  // Pagination
+  blogs: [], // ✅ Initialize as empty array, not undefined
+  currentBlog: null,
+  userBlogs: [],
+  isLoading: false,
+  isCreating: false,
+  isUpdating: false,
+  error: null,
+  searchQuery: '',
   pagination: {
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 0
-  },
-
-  // Search & Filters
-  searchQuery: '',
-  selectedCategory: '',
-  selectedTag: '',
-
-  // Loading states
-  isLoading: false,
-  isCreating: false,
-  isUpdating: false,
-  isDeleting: false,
-
-  // Error handling
-  error: null
+  }
 };
 
 const blogSlice = createSlice({
