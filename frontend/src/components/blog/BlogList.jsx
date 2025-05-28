@@ -1,6 +1,6 @@
 import BlogCard from './BlogCard';
 
-const BlogList = ({ blogs }) => {
+const BlogList = ({ blogs = [] }) => {
   if (!blogs || blogs.length === 0) {
     return (
       <div className="text-center py-12">
