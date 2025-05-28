@@ -1,414 +1,215 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { Link } from 'react-router-dom';
 import {
-  setCurrentBlog,
-  updateBlogSuccess,
-  setUpdatingBlog,
-  setBlogError,
   setBlogsLoading,
-  clearCurrentBlog
+  setBlogsSuccess,
+  setBlogError
 } from '../redux/blogSlice';
 import { blogService } from '../services/blogService';
+import BlogList from '../components/blog/BlogList';
+import LoadingSpinner from '../components/common/Loader';
+import ErrorMessage from '../components/common/ErrorMessage';
 
-const EditBlog = () => {
-  const { id } = useParams(); // Get blog ID from URL
-  const navigate = useNavigate();
+const Home = () => {
+  const { blogs = [], isLoading, error } = useSelector((state) => state.blogs);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  const { currentBlog, isUpdating, isLoading, error } = useSelector(
-    (state) => state.blogs
-  );
-  const { isAuthenticated, userData } = useSelector((state) => state.auth);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    content: '',
-    category: '',
-    tags: ''
-  });
-
-  const [isFormReady, setIsFormReady] = useState(false);
-
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-  }, [isAuthenticated, navigate]);
+    fetchBlogs();
+  }, []);
 
-  // Fetch blog data when component mounts
-  useEffect(() => {
-    if (id) {
-      fetchBlogData(id);
-    }
-
-    // Cleanup when component unmounts
-    return () => {
-      dispatch(clearCurrentBlog());
-    };
-  }, [id]);
-
-  // Pre-fill form when blog data is loaded
-  useEffect(() => {
-    if (currentBlog) {
-      // Check if user owns this blog
-      if (currentBlog.owner._id !== userData?._id) {
-        alert('You can only edit your own blogs!');
-        navigate('/dashboard');
-        return;
-      }
-
-      // Pre-fill form with existing data
-      setFormData({
-        title: currentBlog.title || '',
-        description: currentBlog.description || '',
-        content: currentBlog.content || '',
-        category: currentBlog.category || '',
-        tags: currentBlog.tags ? currentBlog.tags.join(', ') : ''
-      });
-      setIsFormReady(true);
-    }
-  }, [currentBlog, userData, navigate]);
-
-  const fetchBlogData = async (blogId) => {
+  const fetchBlogs = async (search = '') => {
     dispatch(setBlogsLoading(true));
     try {
-      const response = await blogService.getBlogById(blogId);
-      dispatch(setCurrentBlog(response.data.blog));
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Blog not found';
-      dispatch(setBlogError(errorMessage));
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleContentChange = (content) => {
-    setFormData((prev) => ({
-      ...prev,
-      content
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Basic validation
-    if (!formData.title.trim()) {
-      dispatch(setBlogError('Title is required'));
-      return;
-    }
-
-    if (!formData.content.trim() || formData.content === '<p><br></p>') {
-      dispatch(setBlogError('Content is required'));
-      return;
-    }
-
-    dispatch(setUpdatingBlog(true));
-    dispatch(setBlogError(null));
-
-    try {
-      // Prepare data for backend
-      const blogData = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        content: formData.content,
-        category: formData.category.trim() || undefined,
-        tags: formData.tags.trim()
-          ? formData.tags
-              .split(',')
-              .map((tag) => tag.trim())
-              .filter((tag) => tag)
-          : undefined
+      const params = {
+        limit: 12,
+        ...(search && { search })
       };
 
-      const response = await blogService.updateBlog(id, blogData);
-      dispatch(updateBlogSuccess(response.data.blog));
-
-      // Show success message
-      alert('Blog updated successfully!');
-
-      // Redirect to blog detail page
-      navigate(`/blog/${id}`);
+      const response = await blogService.getAllBlogs(params);
+      dispatch(
+        setBlogsSuccess({
+          blogs: response.data.blogs || [],
+          pagination: response.data.pagination || {}
+        })
+      );
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || 'Failed to update blog';
-      dispatch(setBlogError(errorMessage));
-    } finally {
-      dispatch(setUpdatingBlog(false));
+      dispatch(
+        setBlogError(error.response?.data?.message || 'Failed to fetch blogs')
+      );
     }
   };
 
-  const handleCancel = () => {
-    if (
-      window.confirm(
-        'Are you sure you want to cancel? All changes will be lost.'
-      )
-    ) {
-      navigate(`/blog/${id}`);
-    }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchBlogs(searchQuery);
   };
-
-  // Quill editor modules and formats
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      ['link', 'image'],
-      ['blockquote', 'code-block'],
-      [{ align: [] }],
-      [{ color: [] }, { background: [] }],
-      ['clean']
-    ]
-  };
-
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-    'image',
-    'blockquote',
-    'code-block',
-    'align',
-    'color',
-    'background'
-  ];
-
-  // Loading state
-  if (isLoading || !isFormReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading blog data...</div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error && !currentBlog) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">Error: {error}</div>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Go to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Blog</h1>
-          <p className="text-gray-600">Update your blog post</p>
-          {currentBlog && (
-            <p className="text-sm text-gray-500 mt-2">
-              Originally created on{' '}
-              {new Date(currentBlog.createdAt).toLocaleDateString()}
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl font-bold mb-6">Welcome to BlogSpace</h1>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Discover amazing stories, share your thoughts, and connect with
+            writers from around the world.
+          </p>
+
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-md mx-auto mb-8">
+            <div className="flex">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search blogs..."
+                className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 px-6 py-3 rounded-r-lg transition-colors"
+              >
+                🔍
+              </button>
+            </div>
+          </form>
+
+          {/* Call to Action */}
+          {isAuthenticated ? (
+            <Link
+              to="/create-blog"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
+            >
+              📝 Write Your Story
+            </Link>
+          ) : (
+            <div className="space-x-4">
+              <Link
+                to="/register"
+                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
+              >
+                Get Started
+              </Link>
+              <Link
+                to="/login"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-block"
+              >
+                Login
+              </Link>
+            </div>
           )}
         </div>
+      </section>
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-md p-8"
-        >
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-              {error}
-            </div>
+      {/* Blogs Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Latest Blog Posts
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Explore our collection of insightful articles, tutorials, and
+              stories from our community of writers.
+            </p>
+          </div>
+
+          {/* Loading State */}
+          {isLoading && (
+            <LoadingSpinner size="lg" text="Loading amazing blogs..." />
           )}
 
-          {/* Title */}
-          <div className="mb-6">
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Title *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="Enter your blog title..."
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
+          {/* Error State */}
+          {error && !isLoading && (
+            <ErrorMessage
+              message={error}
+              onRetry={() => fetchBlogs(searchQuery)}
             />
+          )}
+
+          {/* Blogs List */}
+          {!isLoading && !error && (
+            <>
+              {Array.isArray(blogs) && blogs.length > 0 ? (
+                <BlogList blogs={blogs} />
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📝</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {searchQuery ? 'No blogs found' : 'No blogs yet'}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {searchQuery
+                      ? `No blogs match "${searchQuery}". Try a different search term.`
+                      : 'Be the first to share your story!'}
+                  </p>
+                  {!searchQuery && !isAuthenticated && (
+                    <Link
+                      to="/register"
+                      className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Join Our Community
+                    </Link>
+                  )}
+                  {!searchQuery && isAuthenticated && (
+                    <Link
+                      to="/create-blog"
+                      className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Write Your First Blog
+                    </Link>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Why Choose BlogSpace?
+            </h2>
           </div>
 
-          {/* Description */}
-          <div className="mb-6">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Brief description of your blog..."
-              rows="3"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Category and Tags Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Category */}
-            <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Category
-              </label>
-              <input
-                type="text"
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                placeholder="e.g., Technology, Travel, Food..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-4xl mb-4">✍️</div>
+              <h3 className="text-xl font-bold mb-2">Easy Writing</h3>
+              <p className="text-gray-600">
+                Rich text editor makes writing and formatting your blogs
+                effortless.
+              </p>
             </div>
 
-            {/* Tags */}
-            <div>
-              <label
-                htmlFor="tags"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Tags
-              </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={formData.tags}
-                onChange={handleInputChange}
-                placeholder="Separate tags with commas: react, javascript, web..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Separate multiple tags with commas
+            <div className="text-center">
+              <div className="text-4xl mb-4">🌍</div>
+              <h3 className="text-xl font-bold mb-2">Global Community</h3>
+              <p className="text-gray-600">
+                Connect with readers and writers from around the world.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="text-4xl mb-4">📱</div>
+              <h3 className="text-xl font-bold mb-2">Responsive Design</h3>
+              <p className="text-gray-600">
+                Your blogs look great on desktop, tablet, and mobile devices.
               </p>
             </div>
           </div>
-
-          {/* Content - Rich Text Editor */}
-          <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content *
-            </label>
-            <div className="border border-gray-300 rounded-lg overflow-hidden">
-              <ReactQuill
-                theme="snow"
-                value={formData.content}
-                onChange={handleContentChange}
-                modules={modules}
-                formats={formats}
-                placeholder="Write your amazing blog content here..."
-                style={{ height: '400px' }}
-              />
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Use the toolbar above to format your content with headers, bold
-              text, lists, links, and more.
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-12">
-            <button
-              type="submit"
-              disabled={isUpdating}
-              className="flex-1 bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {isUpdating ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Updating Blog...
-                </span>
-              ) : (
-                '✏️ Update Blog'
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isUpdating}
-              className="flex-1 sm:flex-none bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors font-medium"
-            >
-              Cancel
-            </button>
-          </div>
-
-          {/* Update Info */}
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-700">
-              <strong>📝 Note:</strong> Your changes will be saved and the "last
-              updated" time will be updated. The original creation date will
-              remain unchanged.
-            </p>
-          </div>
-        </form>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default EditBlog;
+export default Home;

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { Editor } from '@tinymce/tinymce-react';
 import {
   createBlogSuccess,
   setCreatingBlog,
@@ -55,7 +54,7 @@ const CreateBlog = () => {
       return;
     }
 
-    if (!formData.content.trim() || formData.content === '<p><br></p>') {
+    if (!formData.content.trim() || formData.content === '<p></p>') {
       dispatch(setBlogError('Content is required'));
       return;
     }
@@ -104,39 +103,6 @@ const CreateBlog = () => {
       navigate('/dashboard');
     }
   };
-
-  // Quill editor modules and formats
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      ['link', 'image'],
-      ['blockquote', 'code-block'],
-      [{ align: [] }],
-      [{ color: [] }, { background: [] }],
-      ['clean']
-    ]
-  };
-
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-    'image',
-    'blockquote',
-    'code-block',
-    'align',
-    'color',
-    'background'
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -244,20 +210,48 @@ const CreateBlog = () => {
             </div>
           </div>
 
-          {/* Content - Rich Text Editor */}
+          {/* Content - TinyMCE Editor */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Content *
             </label>
             <div className="border border-gray-300 rounded-lg overflow-hidden">
-              <ReactQuill
-                theme="snow"
+              <Editor
                 value={formData.content}
-                onChange={handleContentChange}
-                modules={modules}
-                formats={formats}
-                placeholder="Write your amazing blog content here..."
-                style={{ height: '400px' }}
+                onEditorChange={handleContentChange}
+                init={{
+                  height: 400,
+                  menubar: false,
+                  plugins: [
+                    'advlist',
+                    'autolink',
+                    'lists',
+                    'link',
+                    'image',
+                    'charmap',
+                    'preview',
+                    'anchor',
+                    'searchreplace',
+                    'visualblocks',
+                    'code',
+                    'fullscreen',
+                    'insertdatetime',
+                    'media',
+                    'table',
+                    'help',
+                    'wordcount'
+                  ],
+                  toolbar:
+                    'undo redo | blocks | ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
+                    'alignright alignjustify | bullist numlist outdent indent | ' +
+                    'removeformat | help',
+                  content_style:
+                    'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                  placeholder: 'Write your amazing blog content here...',
+                  branding: false,
+                  promotion: false
+                }}
               />
             </div>
             <p className="text-sm text-gray-500 mt-2">
@@ -316,8 +310,8 @@ const CreateBlog = () => {
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700">
               <strong>💡 Tip:</strong> You can use the rich text editor to
-              format your content with headers, bold text, lists, links, images,
-              and more. Your blog will be saved exactly as you see it here.
+              format your content with headers, bold text, lists, links, and
+              more. Your blog will be saved exactly as you see it here.
             </p>
           </div>
         </form>
