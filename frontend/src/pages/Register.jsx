@@ -12,10 +12,9 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    username: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -46,13 +45,32 @@ const Register = () => {
   };
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      dispatch(setError('Full name is required'));
+    // ✅ Validate username instead of fullName
+    if (!formData.username.trim()) {
+      dispatch(setError('Username is required'));
+      return false;
+    }
+
+    if (formData.username.trim().length < 3) {
+      dispatch(setError('Username must be at least 3 characters long'));
+      return false;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      dispatch(
+        setError('Username can only contain letters, numbers, and underscores')
+      );
       return false;
     }
 
     if (!formData.email.trim()) {
       dispatch(setError('Email is required'));
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      dispatch(setError('Please enter a valid email address'));
       return false;
     }
 
@@ -63,17 +81,6 @@ const Register = () => {
 
     if (formData.password.length < 6) {
       dispatch(setError('Password must be at least 6 characters long'));
-      return false;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      dispatch(setError('Passwords do not match'));
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      dispatch(setError('Please enter a valid email address'));
       return false;
     }
 
@@ -91,22 +98,25 @@ const Register = () => {
     dispatch(clearError());
 
     try {
-      const registerData = {
-        fullName: formData.fullName.trim(),
-        email: formData.email.trim(),
+      const loginData = {
+        email: formData.email.trim().toLowerCase(),
         password: formData.password
       };
 
-      const response = await authService.register(registerData);
+      console.log('Sending login data:', loginData);
+
+      const response = await authService.login(loginData);
+      console.log('Login response:', response.data);
+
+      // ✅ Pass the entire response.data
       dispatch(login(response.data));
 
-      // Show success message
-      alert('Registration successful! Welcome to our blog platform!');
       navigate('/dashboard');
     } catch (error) {
+      console.error('Login error:', error);
       const errorMessage =
         error.response?.data?.message ||
-        'Registration failed. Please try again.';
+        'Login failed. Please check your credentials.';
       dispatch(setError(errorMessage));
     } finally {
       dispatch(setLoading(false));
@@ -129,25 +139,32 @@ const Register = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
-            {/* Full Name */}
+            {/* Username */}
             <div>
               <label
-                htmlFor="fullName"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Full Name
+                Username *
               </label>
               <input
-                id="fullName"
-                name="fullName"
+                id="username"
+                name="username"
                 type="text"
-                autoComplete="name"
+                autoComplete="username"
                 required
-                value={formData.fullName}
+                value={formData.username}
                 onChange={handleInputChange}
-                placeholder="Enter your full name"
+                placeholder="Choose a unique username"
                 className="relative block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                minLength="3"
+                maxLength="20"
+                pattern="^[a-zA-Z0-9_]+$"
+                title="Username can only contain letters, numbers, and underscores"
               />
+              <p className="text-sm text-gray-500 mt-1">
+                3-20 characters, letters, numbers, and underscores only
+              </p>
             </div>
 
             {/* Email */}
@@ -156,7 +173,7 @@ const Register = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email Address
+                Email Address *
               </label>
               <input
                 id="email"
@@ -177,7 +194,7 @@ const Register = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                Password *
               </label>
               <input
                 id="password"
@@ -187,30 +204,13 @@ const Register = () => {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Enter your password"
+                placeholder="Enter your password (min 6 characters)"
                 className="relative block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                minLength="6"
               />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder="Confirm your password"
-                className="relative block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <p className="text-sm text-gray-500 mt-1">
+                Password must be at least 6 characters long
+              </p>
             </div>
 
             {/* Show Password Checkbox */}
@@ -227,7 +227,7 @@ const Register = () => {
                 htmlFor="showPassword"
                 className="ml-2 block text-sm text-gray-900"
               >
-                Show passwords
+                Show password
               </label>
             </div>
           </div>

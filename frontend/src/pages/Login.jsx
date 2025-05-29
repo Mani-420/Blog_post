@@ -23,10 +23,10 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Clear errors when component mounts or form changes
+  // Clear errors when component mounts
   useEffect(() => {
     dispatch(clearError());
-  }, []);
+  }, [dispatch]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,20 +41,63 @@ const Login = () => {
     }
   };
 
+  // ✅ Add the missing validateForm function
+  const validateForm = () => {
+    if (!formData.email.trim()) {
+      dispatch(setError('Email is required'));
+      return false;
+    }
+
+    if (!formData.password) {
+      dispatch(setError('Password is required'));
+      return false;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      dispatch(setError('Please enter a valid email address'));
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Now validateForm exists
+    if (!validateForm()) {
+      return;
+    }
+
     dispatch(setLoading(true));
     dispatch(clearError());
 
     try {
-      const response = await authService.login(formData);
+      // ✅ Fix the field names - use formData.email instead of emailOrUsername
+      const loginData = {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      };
+
+      console.log('Sending login data:', loginData);
+
+      const response = await authService.login(loginData);
+      console.log('Login response:', response.data);
+
+      // ✅ Dispatch login with the response data
       dispatch(login(response.data));
+
       navigate('/dashboard');
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      console.error('Login error:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        'Login failed. Please check your credentials.';
       dispatch(setError(errorMessage));
     } finally {
-      dispatch(setLoading(false)); // ✅ Always stop loading
+      dispatch(setLoading(false));
     }
   };
 
@@ -86,7 +129,7 @@ const Login = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email Address
+                Email Address *
               </label>
               <input
                 id="email"
@@ -107,7 +150,7 @@ const Login = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                Password *
               </label>
               <input
                 id="password"

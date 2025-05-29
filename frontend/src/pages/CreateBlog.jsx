@@ -217,6 +217,7 @@ const CreateBlog = () => {
             </label>
             <div className="border border-gray-300 rounded-lg overflow-hidden">
               <Editor
+                apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
                 value={formData.content}
                 onEditorChange={handleContentChange}
                 init={{
