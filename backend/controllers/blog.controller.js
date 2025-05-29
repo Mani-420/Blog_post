@@ -69,6 +69,37 @@ const getAllBlogs = asyncHandler(async (req, res) => {
   );
 });
 
+const getUserBlogs = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // ✅ Get blogs for the authenticated user
+  const blogs = await Blogs.find({ author: req.user._id })
+    .populate('author', '-password -refreshToken')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Blogs.countDocuments({ author: req.user._id });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        blogs,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      },
+      'User blogs fetched successfully'
+    )
+  );
+});
+
 const getBlog = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -165,5 +196,6 @@ export {
   getBlog,
   updateBlog,
   deleteBlog,
-  getBlogsByAuthor
+  getBlogsByAuthor,
+  getUserBlogs
 };
