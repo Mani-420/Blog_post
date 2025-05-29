@@ -21,6 +21,12 @@ const blogSlice = createSlice({
   name: 'blogs',
   initialState,
   reducers: {
+    setUserBlogs: (state, action) => {
+      state.userBlogs = Array.isArray(action.payload) ? action.payload : []; // ✅ Ensure array
+      state.isLoading = false;
+      state.error = null;
+    },
+
     // ===== BLOG LIST ACTIONS =====
     setBlogsLoading: (state, action) => {
       state.isLoading = action.payload;
@@ -203,7 +209,9 @@ export const {
 
   // Error handling
   setBlogError,
-  clearBlogError
+  clearBlogError,
+
+  setUserBlogs
 } = blogSlice.actions;
 
 export default blogSlice.reducer;
