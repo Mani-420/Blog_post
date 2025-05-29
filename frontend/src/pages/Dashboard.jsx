@@ -28,12 +28,19 @@ const Dashboard = () => {
   const fetchUserBlogs = async () => {
     dispatch(setBlogsLoading(true));
     try {
+      console.log('Fetching user blogs...'); // ✅ Debug log
+
       const response = await blogService.getUserBlogs();
       console.log('User blogs response:', response.data); // ✅ Debug log
 
-      // ✅ Handle the response structure from your backend
-      const blogs = response.data.data?.blogs || response.data.blogs || [];
-      dispatch(setUserBlogs(blogs));
+      // ✅ Handle the response structure and filter out invalid blogs
+      const rawBlogs = response.data.data?.blogs || response.data.blogs || [];
+      const validBlogs = rawBlogs.filter(
+        (blog) => blog && blog._id && typeof blog === 'object'
+      );
+
+      console.log('Valid blogs:', validBlogs); // ✅ Debug log
+      dispatch(setUserBlogs(validBlogs));
     } catch (error) {
       console.error('Error fetching user blogs:', error);
       dispatch(
@@ -147,10 +154,9 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-gray-600">Total Views</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Array.isArray(userBlogs)
-                    ? userBlogs.reduce(
-                        (total, blog) => total + (blog?.views || 0), // ✅ Add optional chaining
-                        0
-                      )
+                    ? userBlogs
+                        .filter((blog) => blog && typeof blog === 'object') // ✅ Filter valid blogs
+                        .reduce((total, blog) => total + (blog?.views || 0), 0)
                     : 0}
                 </p>
               </div>
@@ -180,10 +186,12 @@ const Dashboard = () => {
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Array.isArray(userBlogs)
-                    ? userBlogs.reduce(
-                        (total, blog) => total + (blog?.commentsCount || 0), // ✅ Add optional chaining
-                        0
-                      )
+                    ? userBlogs
+                        .filter((blog) => blog && typeof blog === 'object') // ✅ Filter valid blogs
+                        .reduce(
+                          (total, blog) => total + (blog?.commentsCount || 0),
+                          0
+                        )
                     : 0}
                 </p>
               </div>
@@ -216,10 +224,9 @@ const Dashboard = () => {
                 {/* ✅ Safe check for array and length */}
                 {Array.isArray(userBlogs) && userBlogs.length > 0 ? (
                   <div className="space-y-4">
-                    {userBlogs.map(
-                      (
-                        blog // ✅ Now safe to use .map()
-                      ) => (
+                    {userBlogs
+                      .filter((blog) => blog && blog._id) // ✅ Filter out undefined/null blogs
+                      .map((blog) => (
                         <div
                           key={blog._id}
                           className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
@@ -227,10 +234,13 @@ const Dashboard = () => {
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                             <div className="flex-1">
                               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                {blog.title}
+                                {blog?.title || 'Untitled'}{' '}
+                                {/* ✅ Add fallback */}
                               </h3>
                               <p className="text-gray-600 mb-4">
-                                {blog.content?.substring(0, 150)}...
+                                {blog?.content?.substring(0, 150) ||
+                                  'No content'}
+                                ... {/* ✅ Add fallback */}
                               </p>
                               <div className="flex items-center space-x-4 text-sm text-gray-500">
                                 <span className="flex items-center">
@@ -253,7 +263,7 @@ const Dashboard = () => {
                                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                     ></path>
                                   </svg>
-                                  {blog.views || 0} views
+                                  {blog?.views || 0} views
                                 </span>
                                 <span className="flex items-center">
                                   <svg
@@ -269,13 +279,15 @@ const Dashboard = () => {
                                       d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
                                     ></path>
                                   </svg>
-                                  {blog.commentsCount || 0} comments
+                                  {blog?.commentsCount || 0} comments
                                 </span>
                                 <span>
                                   Created:{' '}
-                                  {new Date(
-                                    blog.createdAt
-                                  ).toLocaleDateString()}
+                                  {blog?.createdAt
+                                    ? new Date(
+                                        blog.createdAt
+                                      ).toLocaleDateString()
+                                    : 'Unknown'}
                                 </span>
                               </div>
                             </div>
@@ -302,8 +314,7 @@ const Dashboard = () => {
                             </div>
                           </div>
                         </div>
-                      )
-                    )}
+                      ))}
                   </div>
                 ) : (
                   /* Empty State */
