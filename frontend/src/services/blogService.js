@@ -11,7 +11,7 @@ export const blogService = {
   getUserBlogs: () => api.get('/blogs/user'),
 
   // CRUD operations
-  createBlog: (blogData) => api.post('/blogs', blogData),
+  createBlog: (blogData) => api.post('/blogs/create-blog', blogData),
   updateBlog: (id, blogData) => api.put(`/blogs/${id}`, blogData),
   deleteBlog: (id) => api.delete(`/blogs/${id}`),
 
