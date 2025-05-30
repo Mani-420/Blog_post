@@ -16,7 +16,10 @@ const createBlog = asyncHandler(async (req, res) => {
     image: image || 'No image provided',
     author: req.user._id,
     tags: tags || [],
-    category: category || 'General'
+    category: category || 'General',
+    views: 0, // ✅ Initialize views
+    commentsCount: 0, // ✅ Initialize commentsCount if not auto-calculated
+    reviewsCount: 0
   });
 
   if (!blog) {
@@ -103,10 +106,11 @@ const getUserBlogs = asyncHandler(async (req, res) => {
 const getBlog = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const blog = await Blogs.findById(id)
-    .populate('author', '-password -refreshToken')
-    .populate('commentsCount')
-    .populate('reviewsCount');
+  const blog = await Blogs.findByIdAndUpdate(
+    id,
+    { $inc: { views: 1 } }, // ✅ Auto-increment views when viewing
+    { new: true } // ✅ Return updated document
+  ).populate('author', '-password -refreshToken');
 
   if (!blog) {
     throw new ApiError('Blog not found', 404);
