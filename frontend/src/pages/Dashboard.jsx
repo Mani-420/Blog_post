@@ -295,7 +295,7 @@ const Dashboard = () => {
                                 View
                               </Link>
                               <Link
-                                to={`/edit-blog/${blog._id}`}
+                                to={`/blogs/edit-blog/${blog._id}`}
                                 className="px-4 py-2 text-sm font-medium text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
                               >
                                 Edit

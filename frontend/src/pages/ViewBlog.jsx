@@ -6,8 +6,7 @@ import {
   setCurrentBlog,
   setBlogsLoading,
   setBlogError,
-  clearCurrentBlog,
-  incrementViews
+  clearCurrentBlog
 } from '../redux/blogSlice';
 import { blogService } from '../services/blogService';
 
@@ -34,11 +33,7 @@ const ViewBlog = () => {
     dispatch(setBlogsLoading(true));
     try {
       const response = await blogService.getBlogById(blogId);
-      dispatch(setCurrentBlog(response.data.blog));
-
-      // Increment view count
-      await blogService.incrementViews(blogId);
-      dispatch(incrementViews());
+      dispatch(setCurrentBlog(response.data.data || response.data.blog));
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Blog not found';
       dispatch(setBlogError(errorMessage));
@@ -46,7 +41,7 @@ const ViewBlog = () => {
   };
 
   const handleEdit = () => {
-    navigate(`/edit-blog/${id}`);
+    navigate(`/blogs/edit-blog/${id}`);
   };
 
   const handleDelete = async () => {
@@ -145,7 +140,7 @@ const ViewBlog = () => {
     );
   }
 
-  const isOwner = isAuthenticated && userData?._id === currentBlog.owner._id;
+  const isOwner = isAuthenticated && userData?._id === currentBlog.author?._id;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -186,11 +181,11 @@ const ViewBlog = () => {
           <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                {currentBlog.owner.fullName.charAt(0).toUpperCase()}
+                {currentBlog.author?.fullName?.charAt(0).toUpperCase() || '?'}
               </div>
               <div>
                 <p className="font-medium text-gray-900">
-                  {currentBlog.owner.fullName}
+                  {currentBlog.author?.fullName || 'Unknown'}
                 </p>
                 <p className="text-sm text-gray-500">Author</p>
               </div>

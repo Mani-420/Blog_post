@@ -56,7 +56,7 @@ const EditBlog = () => {
   useEffect(() => {
     if (currentBlog) {
       // Check if user owns this blog
-      if (currentBlog.owner._id !== userData?._id) {
+      if (currentBlog.author?._id !== userData?._id) {
         toast('You can only edit your own blogs!');
         navigate('/dashboard');
         return;
@@ -78,10 +78,12 @@ const EditBlog = () => {
     dispatch(setBlogsLoading(true));
     try {
       const response = await blogService.getBlogById(blogId);
-      dispatch(setCurrentBlog(response.data.blog));
+      dispatch(setCurrentBlog(response.data.data || response.data.blog));
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Blog not found';
       dispatch(setBlogError(errorMessage));
+    } finally {
+      dispatch(setBlogsLoading(false)); // <-- Always stop loading
     }
   };
 
