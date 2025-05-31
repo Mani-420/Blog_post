@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Editor } from '@tinymce/tinymce-react'; // ✅ Move this to the top
+import { Editor } from '@tinymce/tinymce-react';
+import { toast } from 'react-toastify';
+import Spinner from '../components/common/Spinner';
 import {
   setCurrentBlog,
   updateBlogSuccess,
@@ -32,7 +34,6 @@ const EditBlog = () => {
 
   const [isFormReady, setIsFormReady] = useState(false);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
@@ -52,12 +53,11 @@ const EditBlog = () => {
     };
   }, [id]);
 
-  // Pre-fill form when blog data is loaded
   useEffect(() => {
     if (currentBlog) {
       // Check if user owns this blog
       if (currentBlog.owner._id !== userData?._id) {
-        alert('You can only edit your own blogs!');
+        toast('You can only edit your own blogs!');
         navigate('/dashboard');
         return;
       }
@@ -109,7 +109,6 @@ const EditBlog = () => {
       return;
     }
 
-    // ✅ Fixed validation for TinyMCE
     if (!formData.content.trim() || formData.content === '<p></p>') {
       dispatch(setBlogError('Content is required'));
       return;
@@ -119,32 +118,29 @@ const EditBlog = () => {
     dispatch(setBlogError(null));
 
     try {
-      // Prepare data for backend
       const blogData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
         content: formData.content,
-        category: formData.category.trim() || undefined,
+        category: formData.category.trim() || 'Uncategorized',
         tags: formData.tags.trim()
           ? formData.tags
               .split(',')
               .map((tag) => tag.trim())
               .filter((tag) => tag)
-          : undefined
+          : ''
       };
 
       const response = await blogService.updateBlog(id, blogData);
       dispatch(updateBlogSuccess(response.data.blog));
 
-      // Show success message
-      alert('Blog updated successfully!');
-
-      // Redirect to blog detail page
+      toast.success('Blog updated successfully');
       navigate(`/view-blog/${id}`); // ✅ Fixed route
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || 'Failed to update blog';
       dispatch(setBlogError(errorMessage));
+      toast.error('Failed to update the blog. Please try again later.');
     } finally {
       dispatch(setUpdatingBlog(false));
     }
@@ -156,15 +152,15 @@ const EditBlog = () => {
         'Are you sure you want to cancel? All changes will be lost.'
       )
     ) {
-      navigate(`/view-blog/${id}`); // ✅ Fixed route
+      navigate(`/view-blog/${id}`);
     }
   };
 
-  // Loading state
   if (isLoading || !isFormReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading blog data...</div>
+        <Spinner />
+        <div className="text-gray-600 mt-4">Loading blog data...</div>
       </div>
     );
   }

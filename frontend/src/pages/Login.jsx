@@ -66,7 +66,6 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Now validateForm exists
     if (!validateForm()) {
       return;
     }
@@ -75,7 +74,6 @@ const Login = () => {
     dispatch(clearError());
 
     try {
-      // ✅ Fix the field names - use formData.email instead of emailOrUsername
       const loginData = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password
@@ -86,7 +84,6 @@ const Login = () => {
       const response = await authService.login(loginData);
       console.log('Login response:', response.data);
 
-      // ✅ Dispatch login with the response data
       dispatch(login(response.data));
 
       navigate('/dashboard');

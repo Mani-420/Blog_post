@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Editor } from '@tinymce/tinymce-react';
+import { toast } from 'react-toastify';
 import {
   createBlogSuccess,
   setCreatingBlog,
@@ -23,8 +24,7 @@ const CreateBlog = () => {
     tags: ''
   });
 
-  // Redirect if not authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
     }
@@ -68,27 +68,32 @@ const CreateBlog = () => {
         title: formData.title.trim(),
         description: formData.description.trim(),
         content: formData.content,
-        category: formData.category.trim() || undefined,
+        category: formData.category.trim() || ['General'],
         tags: formData.tags.trim()
           ? formData.tags
               .split(',')
               .map((tag) => tag.trim())
               .filter((tag) => tag)
-          : undefined
+          : []
       };
 
       const response = await blogService.createBlog(blogData);
       dispatch(createBlogSuccess(response.data.blog));
 
-      // Show success message
-      alert('Blog created successfully!');
-
-      // Redirect to dashboard or blog detail
+      toast.success('Blog created successfully');
+      setFormData({
+        title: '',
+        description: '',
+        content: '',
+        category: '',
+        tags: ''
+      });
       navigate('/dashboard');
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || 'Failed to create blog';
       dispatch(setBlogError(errorMessage));
+      toast.error('Failed to Create Blog. Please Try Again', errorMessage);
     } finally {
       dispatch(setCreatingBlog(false));
     }

@@ -33,8 +33,8 @@ const Home = () => {
       const response = await blogService.getAllBlogs(params);
       dispatch(
         setBlogsSuccess({
-          blogs: response.data.blogs || [],
-          pagination: response.data.pagination || {}
+          blogs: response.data.data?.blogs || [],
+          pagination: response.data.data?.pagination || {}
         })
       );
     } catch (error) {
@@ -52,7 +52,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+      <section className="bg-gradient-to-r from-gray-600 to-gray-700 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-bold mb-6">Welcome to BlogSpace</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
@@ -61,7 +61,10 @@ const Home = () => {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-md mx-auto mb-8">
+          <form
+            onSubmit={handleSearch}
+            className="bg-amber-50 max-w-md mx-auto mb-8 rounded-lg"
+          >
             <div className="flex">
               <input
                 type="text"
@@ -151,7 +154,7 @@ const Home = () => {
                   {!searchQuery && !isAuthenticated && (
                     <Link
                       to="/register"
-                      className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                      className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       Join Our Community
                     </Link>

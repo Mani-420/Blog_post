@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import Spinner from '../components/common/Spinner';
 import {
   setCurrentBlog,
   setBlogsLoading,
@@ -10,7 +12,7 @@ import {
 import { blogService } from '../services/blogService';
 
 const BlogDetail = () => {
-  const { id } = useParams(); // Get blog ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -33,9 +35,6 @@ const BlogDetail = () => {
     try {
       const response = await blogService.getBlogById(blogId);
       dispatch(setCurrentBlog(response.data.blog));
-
-      // Increment view count
-      await blogService.incrementViews(blogId);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Blog not found';
       dispatch(setBlogError(errorMessage));
@@ -50,9 +49,10 @@ const BlogDetail = () => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       try {
         await blogService.deleteBlog(id);
+        toast.success('Blog deleted successfully');
         navigate('/dashboard');
       } catch (error) {
-        console.error('Failed to delete blog:', error);
+        toast.error('Failed to delete blog. Please try again.');
       }
     }
   };
@@ -69,34 +69,19 @@ const BlogDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading blog...</div>
+        <Spinner />
+        <div className="text-gray-600 mt-4">Loading blog details...</div>
       </div>
     );
   }
 
-  // Error state
-  if (error) {
+  if (error || !currentBlog) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">Error: {error}</div>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-          >
-            Go Back Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Blog not found
-  if (!currentBlog) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-xl mb-4">Blog not found</div>
+          <div className="text-red-500 text-xl mb-4">
+            {error ? `Error: ${error}` : 'Blog not found'}
+          </div>
           <button
             onClick={() => navigate('/')}
             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
@@ -138,13 +123,6 @@ const BlogDetail = () => {
               <span className="font-medium">Views:</span>
               <span>{currentBlog.views || 0}</span>
             </div>
-
-            {currentBlog.updatedAt !== currentBlog.createdAt && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Updated:</span>
-                <span>{formatDate(currentBlog.updatedAt)}</span>
-              </div>
-            )}
           </div>
 
           {/* Description */}
