@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import {
   setCurrentBlog,
   setBlogsLoading,
@@ -56,10 +57,10 @@ const ViewBlog = () => {
     ) {
       try {
         await blogService.deleteBlog(id);
-        alert('Blog deleted successfully!');
+        toast.success('Blog deleted successfully!');
         navigate('/dashboard');
       } catch (error) {
-        alert('Failed to delete blog. Please try again.');
+        toast.error('Failed to delete blog. Please try again.');
       }
     }
   };

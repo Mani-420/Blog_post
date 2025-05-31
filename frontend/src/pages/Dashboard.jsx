@@ -9,11 +9,11 @@ import {
 } from '../redux/blogSlice';
 import LoadingSpinner from '../components/common/Loader';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
 
-  // ✅ Add default empty array to prevent undefined error
   const {
     userBlogs = [],
     isLoading,
@@ -28,18 +28,13 @@ const Dashboard = () => {
   const fetchUserBlogs = async () => {
     dispatch(setBlogsLoading(true));
     try {
-      console.log('Fetching user blogs...'); // ✅ Debug log
-
       const response = await blogService.getUserBlogs();
-      console.log('User blogs response:', response.data); // ✅ Debug log
 
-      // ✅ Handle the response structure and filter out invalid blogs
       const rawBlogs = response.data.data?.blogs || response.data.blogs || [];
       const validBlogs = rawBlogs.filter(
         (blog) => blog && blog._id && typeof blog === 'object'
       );
 
-      console.log('Valid blogs:', validBlogs); // ✅ Debug log
       dispatch(setUserBlogs(validBlogs));
     } catch (error) {
       console.error('Error fetching user blogs:', error);
@@ -55,10 +50,10 @@ const Dashboard = () => {
         await blogService.deleteBlog(blogId);
         // Refresh the list
         fetchUserBlogs();
-        alert('Blog deleted successfully!');
+        toast.success('Blog deleted successfully!');
       } catch (error) {
         console.error('Error deleting blog:', error);
-        alert('Failed to delete blog. Please try again.');
+        toast.error(error.response?.data?.message || 'Failed to delete blog');
       }
     }
   };
@@ -187,7 +182,7 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold text-gray-900">
                   {Array.isArray(userBlogs)
                     ? userBlogs
-                        .filter((blog) => blog && typeof blog === 'object') // ✅ Filter valid blogs
+                        .filter((blog) => blog && typeof blog === 'object')
                         .reduce(
                           (total, blog) => total + (blog?.commentsCount || 0),
                           0
@@ -294,7 +289,7 @@ const Dashboard = () => {
 
                             <div className="mt-4 md:mt-0 md:ml-6 flex space-x-3">
                               <Link
-                                to={`/view-blog/${blog._id}`}
+                                to={`/blogs/${blog._id}`}
                                 className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
                               >
                                 View
