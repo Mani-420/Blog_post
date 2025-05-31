@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// ✅ Fix initialState structure
+const userStr = localStorage.getItem('user');
 const initialState = {
-  isAuthenticated: !!localStorage.getItem('token'), // ✅ Add this
-  user: JSON.parse(localStorage.getItem('user')) || null, // ✅ Consistent naming
+  isAuthenticated: !!localStorage.getItem('token'),
+  user: userStr && userStr !== 'undefined' ? JSON.parse(userStr) : null,
   token: localStorage.getItem('token') || null,
   isLoading: false,
   error: null
@@ -14,7 +14,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      // ✅ Your backend response structure is different
       console.log('Auth Slice - Login payload:', action.payload);
 
       state.isAuthenticated = true; // ✅ Use isAuthenticated instead of status
