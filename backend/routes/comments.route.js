@@ -13,8 +13,8 @@ const router = Router();
 router.route('/blog/:blogId').get(getCommentsByBlog);
 
 // Protected routes
-router.route('/').post(verifyJWT, createComment);
-router.route('/:id').put(verifyJWT, updateComment);
-router.route('/:id').delete(verifyJWT, deleteComment);
+router.route('/').post(verifyJWT, createComment); // Protected route
+router.route('/:id').put(verifyJWT, updateComment); // Protected route
+router.route('/:id').delete(verifyJWT, deleteComment); // Protected route
 
 export default router;

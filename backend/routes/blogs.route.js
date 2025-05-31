@@ -12,15 +12,13 @@ import { verifyJWT } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-// ✅ SPECIFIC ROUTES FIRST
 router.route('/').get(getAllBlogs);
-router.route('/user').get(verifyJWT, getUserBlogs);
-router.route('/create-blog').post(verifyJWT, createBlog);
+router.route('/user').get(verifyJWT, getUserBlogs); // Protected route
+router.route('/create-blog').post(verifyJWT, createBlog); // Protected route
 router.route('/author/:authorId').get(getBlogsByAuthor);
 
-// ✅ DYNAMIC ROUTES LAST
 router.route('/:id').get(getBlog);
-router.route('/:id').put(verifyJWT, updateBlog);
-router.route('/:id').delete(verifyJWT, deleteBlog);
+router.route('/:id').put(verifyJWT, updateBlog); // Protected route
+router.route('/:id').delete(verifyJWT, deleteBlog); // Protected route
 
 export default router;
