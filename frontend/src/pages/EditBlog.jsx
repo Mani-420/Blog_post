@@ -135,7 +135,7 @@ const EditBlog = () => {
       dispatch(updateBlogSuccess(response.data.blog));
 
       toast.success('Blog updated successfully');
-      navigate(`/view-blog/${id}`); // ✅ Fixed route
+      navigate(`/view-blog/${id}`);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || 'Failed to update blog';
