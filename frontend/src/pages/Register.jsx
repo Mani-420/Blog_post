@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, setLoading, setError, clearError } from '../redux/authSlice';
 import { authService } from '../services/authService';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const { isLoading, error, isAuthenticated } = useSelector(
@@ -45,7 +46,6 @@ const Register = () => {
   };
 
   const validateForm = () => {
-    // ✅ Validate username instead of fullName
     if (!formData.username.trim()) {
       dispatch(setError('Username is required'));
       return false;
@@ -97,30 +97,29 @@ const Register = () => {
     dispatch(setLoading(true));
     dispatch(clearError());
 
+    // ...existing code...
     try {
-      const loginData = {
+      const registerData = {
+        username: formData.username.trim(),
         email: formData.email.trim().toLowerCase(),
         password: formData.password
       };
 
-      console.log('Sending login data:', loginData);
+      await authService.register(registerData);
 
-      const response = await authService.login(loginData);
-      console.log('Login response:', response.data);
-
-      // ✅ Pass the entire response.data
-      dispatch(login(response.data));
-
-      navigate('/dashboard');
+      toast.success('User Registered Successfully!');
+      navigate('/login');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Registration error:', error);
       const errorMessage =
         error.response?.data?.message ||
-        'Login failed. Please check your credentials.';
+        'Registration failed. Please check your details.';
+      toast.error('User Registration Failed');
       dispatch(setError(errorMessage));
     } finally {
       dispatch(setLoading(false));
     }
+    // ...existing code...
   };
 
   return (

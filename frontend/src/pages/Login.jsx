@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, setLoading, setError, clearError } from '../redux/authSlice';
 import { authService } from '../services/authService';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const { isLoading, error, isAuthenticated } = useSelector(
@@ -16,7 +17,6 @@ const Login = () => {
     password: ''
   });
 
-  // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
@@ -35,13 +35,11 @@ const Login = () => {
       [name]: value
     }));
 
-    // Clear error when user starts typing
     if (error) {
       dispatch(clearError());
     }
   };
 
-  // ✅ Add the missing validateForm function
   const validateForm = () => {
     if (!formData.email.trim()) {
       dispatch(setError('Email is required'));
@@ -53,13 +51,11 @@ const Login = () => {
       return false;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       dispatch(setError('Please enter a valid email address'));
       return false;
     }
-
     return true;
   };
 
@@ -83,15 +79,21 @@ const Login = () => {
 
       const response = await authService.login(loginData);
       console.log('Login response:', response.data);
+      dispatch(
+        login({
+          user: response.data.data?.user,
+          accessToken: response.data.data?.accessToken
+        })
+      );
 
-      dispatch(login(response.data));
-
+      toast.success('Login Successful');
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       const errorMessage =
         error.response?.data?.message ||
         'Login failed. Please check your credentials.';
+      toast.error('Login failed. Please check your credentials.');
       dispatch(setError(errorMessage));
     } finally {
       dispatch(setLoading(false));
