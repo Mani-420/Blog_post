@@ -14,17 +14,13 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      console.log('Auth Slice - Login payload:', action.payload);
-
-      state.isAuthenticated = true; // ✅ Use isAuthenticated instead of status
-      state.user = action.payload.message.user; // ✅ User is in message.user
-      state.token = action.payload.message.accessToken; // ✅ Token is in message.accessToken
+      state.isAuthenticated = true;
+      state.user = action.payload.user;
+      state.token = action.payload.accessToken;
       state.isLoading = false;
       state.error = null;
-
-      // ✅ Store in localStorage
-      localStorage.setItem('token', action.payload.message.accessToken);
-      localStorage.setItem('user', JSON.stringify(action.payload.message.user));
+      localStorage.setItem('token', action.payload.accessToken);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
 
     logout: (state) => {
