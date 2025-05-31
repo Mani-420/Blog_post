@@ -69,11 +69,11 @@ const BlogCard = ({ blog }) => {
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
-              {blog.owner.fullName.charAt(0).toUpperCase()}
+              {blog.author?.fullName?.charAt(0).toUpperCase() || '?'}
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {blog.owner.fullName}
+                {blog.author?.fullName || 'Unknown'}
               </p>
               <p className="text-xs text-gray-500">{blog.views || 0} views</p>
             </div>
