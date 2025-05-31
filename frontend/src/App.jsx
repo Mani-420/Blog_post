@@ -28,7 +28,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/view-blog/:id" element={<ViewBlog />} />
+            <Route path="/:id" element={<ViewBlog />} />
 
             <Route
               path="/dashboard"
@@ -39,7 +39,7 @@ function App() {
               }
             />
             <Route
-              path="/create-blog"
+              path="/blogs/create-blog"
               element={
                 <ProtectedRoute>
                   <CreateBlog />
@@ -47,7 +47,7 @@ function App() {
               }
             />
             <Route
-              path="/edit-blog/:id"
+              path="/blogs/edit-blog/:id"
               element={
                 <ProtectedRoute>
                   <EditBlog />
