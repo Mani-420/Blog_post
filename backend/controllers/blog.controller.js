@@ -4,7 +4,7 @@ import { Blogs } from '../models/blog.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 
 const createBlog = asyncHandler(async (req, res) => {
-  const { title, content, image, tags, category } = req.body;
+  const { title, content, image, tags, category, description } = req.body;
 
   if (!title || !content) {
     throw new ApiError('Title and content are required', 400);
@@ -17,6 +17,7 @@ const createBlog = asyncHandler(async (req, res) => {
     author: req.user._id,
     tags: tags || [],
     category: category || 'General',
+    description: description || 'No description provided',
     views: 0,
     commentsCount: 0,
     reviewsCount: 0
@@ -123,7 +124,7 @@ const getBlog = asyncHandler(async (req, res) => {
 
 const updateBlog = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { title, content, image, tags, category } = req.body;
+  const { title, content, image, tags, category, description } = req.body;
 
   if (!title || !content) {
     throw new ApiError('Title and content are required', 400);
@@ -144,6 +145,7 @@ const updateBlog = asyncHandler(async (req, res) => {
   blog.image = image || blog.image;
   blog.tags = tags || blog.tags;
   blog.category = category || blog.category;
+  blog.description = description || blog.description;
 
   await blog.save();
 
