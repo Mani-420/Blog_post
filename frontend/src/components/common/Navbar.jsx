@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../redux/authSlice';
 
@@ -15,39 +15,42 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  const navLinkClass = ({ isActive }) =>
+    isActive
+      ? 'text-blue-600 font-semibold'
+      : 'text-gray-700 hover:text-blue-600 transition-colors';
+
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <NavLink to="/" className="flex items-center space-x-2">
             <div className="text-2xl font-bold text-blue-600">📝</div>
             <span className="text-xl font-bold text-gray-900">BlogSpace</span>
-          </Link>
+          </NavLink>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-blue-600 transition-colors"
-            >
+            <NavLink to="/" className={navLinkClass} end>
               Home
-            </Link>
+            </NavLink>
 
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/dashboard"
-                  className="text-gray-700 hover:text-blue-600 transition-colors"
-                >
+                <NavLink to="/dashboard" className={navLinkClass}>
                   Dashboard
-                </Link>
-                <Link
-                  to="/create-blog"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                </NavLink>
+                <NavLink
+                  to="/blogs/create-blog"
+                  className={({ isActive }) =>
+                    isActive
+                      ? 'bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold'
+                      : 'bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors'
+                  }
                 >
                   Write Blog
-                </Link>
+                </NavLink>
                 <div className="flex items-center space-x-3">
                   <span className="text-gray-700">
                     Hi, {userData?.fullName?.split(' ')[0]}
@@ -62,18 +65,19 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-blue-600 transition-colors"
-                >
+                <NavLink to="/login" className={navLinkClass}>
                   Login
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/register"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                  className={({ isActive }) =>
+                    isActive
+                      ? 'bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold'
+                      : 'bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors'
+                  }
                 >
                   Sign Up
-                </Link>
+                </NavLink>
               </>
             )}
           </div>
@@ -103,30 +107,35 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
-              <Link
+              <NavLink
                 to="/"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-blue-600 transition-colors"
+                className={navLinkClass}
+                end
               >
                 Home
-              </Link>
+              </NavLink>
 
               {isAuthenticated ? (
                 <>
-                  <Link
+                  <NavLink
                     to="/dashboard"
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                    className={navLinkClass}
                   >
                     Dashboard
-                  </Link>
-                  <Link
-                    to="/create-blog"
+                  </NavLink>
+                  <NavLink
+                    to="/blogs/create-blog"
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'text-blue-600 font-semibold'
+                        : 'text-gray-700 hover:text-blue-600 transition-colors'
+                    }
                   >
                     Write Blog
-                  </Link>
+                  </NavLink>
                   <span className="text-gray-600">
                     Hi, {userData?.fullName}
                   </span>
@@ -139,20 +148,24 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link
+                  <NavLink
                     to="/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                    className={navLinkClass}
                   >
                     Login
-                  </Link>
-                  <Link
+                  </NavLink>
+                  <NavLink
                     to="/register"
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'text-blue-600 font-semibold'
+                        : 'text-gray-700 hover:text-blue-600 transition-colors'
+                    }
                   >
                     Sign Up
-                  </Link>
+                  </NavLink>
                 </>
               )}
             </div>
