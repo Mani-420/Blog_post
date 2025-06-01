@@ -4,7 +4,7 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   const goBack = () => {
-    navigate(-1); // Go to previous page
+    navigate(-1);
   };
 
   return (
@@ -53,7 +53,7 @@ const NotFound = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/create-blog"
+              to="/blogs/create-blog"
               className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
             >
               ✍️ Create a Blog

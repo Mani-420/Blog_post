@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Editor } from '@tinymce/tinymce-react';
 import { toast } from 'react-toastify';
-import Spinner from '../components/common/Spinner';
+import Loader from '../components/common/Loader';
 import {
   setCurrentBlog,
   updateBlogSuccess,
@@ -159,8 +159,7 @@ const EditBlog = () => {
   if (isLoading || !isFormReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
-        <div className="text-gray-600 mt-4">Loading blog data...</div>
+        <Loader />
       </div>
     );
   }

@@ -22,8 +22,6 @@ const ViewBlog = () => {
     if (id) {
       fetchBlogDetail(id);
     }
-
-    // Cleanup when component unmounts
     return () => {
       dispatch(clearCurrentBlog());
     };

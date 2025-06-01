@@ -8,7 +8,7 @@ import {
 } from '../redux/blogSlice';
 import { blogService } from '../services/blogService';
 import BlogList from '../components/blog/BlogList';
-import LoadingSpinner from '../components/common/Loader';
+import Loader from '../components/common/Loader';
 import ErrorMessage from '../components/common/ErrorMessage';
 
 const Home = () => {
@@ -85,7 +85,7 @@ const Home = () => {
           {/* Call to Action */}
           {isAuthenticated ? (
             <Link
-              to="/create-blog"
+              to="/blogs/create-blog"
               className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
             >
               📝 Write Your Story
@@ -123,9 +123,7 @@ const Home = () => {
           </div>
 
           {/* Loading State */}
-          {isLoading && (
-            <LoadingSpinner size="lg" text="Loading amazing blogs..." />
-          )}
+          {isLoading && <Loader size="lg" text="Loading amazing blogs..." />}
 
           {/* Error State */}
           {error && !isLoading && (
