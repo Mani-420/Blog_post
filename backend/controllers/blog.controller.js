@@ -42,19 +42,27 @@ const getAllBlogs = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  const blogs = await Blogs.find({})
-    .populate('author', '-password -refreshToken')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+  const search = req.query.search;
 
-  if (!blogs || blogs.length === 0) {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, { blogs: blogs || [] }, 'No blogs found'));
+  let query = {};
+
+  // If searching, fetch all blogs and filter by author username/fullName
+  let blogs = await Blogs.find(query)
+    .populate('author', '-password -refreshToken')
+    .sort({ createdAt: -1 });
+
+  if (search) {
+    blogs = blogs.filter(
+      (blog) =>
+        blog.author?.username?.toLowerCase().includes(search.toLowerCase()) ||
+        blog.title.toLowerCase().includes(search.toLowerCase()) ||
+        blog.content.toLowerCase().includes(search.toLowerCase())
+    );
   }
 
-  const total = await Blogs.countDocuments();
+  // Pagination after filtering
+  const total = blogs.length;
+  blogs = blogs.slice(skip, skip + limit);
 
   return res.status(200).json(
     new ApiResponse(
