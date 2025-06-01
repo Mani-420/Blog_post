@@ -8,6 +8,15 @@ const blogSchema = new Schema(
       trim: true,
       maxlength: 100
     },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 200
+    },
+    category: {
+      type: String,
+      trim: true
+    },
     content: {
       type: String,
       required: true,
