@@ -16,7 +16,7 @@ const ViewBlog = () => {
   const dispatch = useDispatch();
 
   const { currentBlog, isLoading, error } = useSelector((state) => state.blogs);
-  const { userData, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (id) {
@@ -33,7 +33,7 @@ const ViewBlog = () => {
     dispatch(setBlogsLoading(true));
     try {
       const response = await blogService.getBlogById(blogId);
-      dispatch(setCurrentBlog(response.data.data || response.data.blog));
+      dispatch(setCurrentBlog(response.data.data?.blog));
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Blog not found';
       dispatch(setBlogError(errorMessage));
@@ -82,7 +82,6 @@ const ViewBlog = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-600">Loading blog...</p>
         </div>
       </div>
     );
@@ -140,7 +139,7 @@ const ViewBlog = () => {
     );
   }
 
-  const isOwner = isAuthenticated && userData?._id === currentBlog.author?._id;
+  const isOwner = isAuthenticated && user?._id === currentBlog.author?._id;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -181,11 +180,13 @@ const ViewBlog = () => {
           <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                {currentBlog.author?.fullName?.charAt(0).toUpperCase() || '?'}
+                {currentBlog.author?.username?.charAt(0).toUpperCase() || '?'}
               </div>
               <div>
                 <p className="font-medium text-gray-900">
-                  {currentBlog.author?.fullName || 'Unknown'}
+                  {currentBlog.author?.username ||
+                    currentBlog.author?.fullName ||
+                    'Unknown'}
                 </p>
                 <p className="text-sm text-gray-500">Author</p>
               </div>
@@ -400,7 +401,7 @@ const ViewBlog = () => {
 
             {isAuthenticated ? (
               <Link
-                to="/create-blog"
+                to="/blogs/create-blog"
                 className="flex items-center justify-center bg-green-50 text-green-700 p-4 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <svg

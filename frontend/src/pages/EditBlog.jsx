@@ -22,7 +22,7 @@ const EditBlog = () => {
   const { currentBlog, isUpdating, isLoading, error } = useSelector(
     (state) => state.blogs
   );
-  const { isAuthenticated, userData } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -55,14 +55,12 @@ const EditBlog = () => {
 
   useEffect(() => {
     if (currentBlog) {
-      // Check if user owns this blog
-      if (currentBlog.author?._id !== userData?._id) {
+      if (currentBlog.author?._id !== user?._id) {
         toast('You can only edit your own blogs!');
         navigate('/dashboard');
         return;
       }
 
-      // Pre-fill form with existing data
       setFormData({
         title: currentBlog.title || '',
         description: currentBlog.description || '',
@@ -72,18 +70,18 @@ const EditBlog = () => {
       });
       setIsFormReady(true);
     }
-  }, [currentBlog, userData, navigate]);
+  }, [currentBlog, user, navigate]);
 
   const fetchBlogData = async (blogId) => {
     dispatch(setBlogsLoading(true));
     try {
       const response = await blogService.getBlogById(blogId);
-      dispatch(setCurrentBlog(response.data.data || response.data.blog));
+      dispatch(setCurrentBlog(response.data.data?.blog));
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Blog not found';
       dispatch(setBlogError(errorMessage));
     } finally {
-      dispatch(setBlogsLoading(false)); // <-- Always stop loading
+      dispatch(setBlogsLoading(false));
     }
   };
 
@@ -105,7 +103,6 @@ const EditBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (!formData.title.trim()) {
       dispatch(setBlogError('Title is required'));
       return;
@@ -134,10 +131,11 @@ const EditBlog = () => {
       };
 
       const response = await blogService.updateBlog(id, blogData);
-      dispatch(updateBlogSuccess(response.data.blog));
+      dispatch(updateBlogSuccess(response.data.data?.blog));
 
       toast.success('Blog updated successfully');
-      navigate(`/view-blog/${id}`);
+      dispatch(clearCurrentBlog());
+      navigate(`/dashboard`);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || 'Failed to update blog';
@@ -154,7 +152,7 @@ const EditBlog = () => {
         'Are you sure you want to cancel? All changes will be lost.'
       )
     ) {
-      navigate(`/view-blog/${id}`);
+      navigate(`/dashboard`);
     }
   };
 
