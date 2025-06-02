@@ -29,13 +29,21 @@ import reviewRoute from './routes/reviews.route.js';
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/blogs', blogRoute);
 // app.use('/api/v1/comments', commentRoute);
-app.use('/api/v1/blogs/:id/reviews', reviewRoute);
+app.use('/api/v1/blogs/:blogId/reviews', reviewRoute);
 
 // 404 handler for unknown API routes
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
     message: 'API route not found'
+  });
+});
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
   });
 });
 
