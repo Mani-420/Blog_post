@@ -9,10 +9,10 @@ import { verifyJWT } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.route('/blog/:blogId').get(getReviewsByBlog);
+router.route('/').get(getReviewsByBlog);
 
 router.route('/').post(verifyJWT, createOrUpdateReview); // Protected route
-router.route('/user/:blogId').get(verifyJWT, getUserReview); // Protected route
-router.route('/:id').delete(verifyJWT, deleteReview); // Protected route
+router.route('/user').get(verifyJWT, getUserReview); // Protected route
+router.route('/:reviewId').delete(verifyJWT, deleteReview); // Protected route
 
 export default router;
