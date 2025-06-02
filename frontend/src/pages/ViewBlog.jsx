@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import Review from '../components/Reviews/Review';
 import {
   setCurrentBlog,
   setBlogsLoading,
@@ -11,7 +12,7 @@ import {
 import { blogService } from '../services/blogService';
 
 const ViewBlog = () => {
-  const { id } = useParams(); // Get blog ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -366,6 +367,9 @@ const ViewBlog = () => {
             )}
           </div>
         </main>
+
+        {/* Comments and Reviews */}
+        <Review blogId={id} />
 
         {/* Related Actions */}
         <div className="bg-white rounded-lg shadow-md p-6">

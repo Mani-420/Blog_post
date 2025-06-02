@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { blogService } from '../services/blogService';
+import stripHtml from '../utils/helpers';
 import {
   setUserBlogs,
   setBlogsLoading,
@@ -220,7 +221,7 @@ const Dashboard = () => {
                 {Array.isArray(userBlogs) && userBlogs.length > 0 ? (
                   <div className="space-y-4">
                     {userBlogs
-                      .filter((blog) => blog && blog._id) // ✅ Filter out undefined/null blogs
+                      .filter((blog) => blog && blog._id)
                       .map((blog) => (
                         <div
                           key={blog._id}
@@ -233,10 +234,12 @@ const Dashboard = () => {
                                 {/* ✅ Add fallback */}
                               </h3>
                               <p className="text-gray-600 mb-4">
-                                {blog?.content?.substring(0, 150) ||
-                                  'No content'}
-                                ... {/* ✅ Add fallback */}
+                                {blog?.content
+                                  ? stripHtml(blog.content).substring(0, 150) +
+                                    '...'
+                                  : 'No content available'}
                               </p>
+                              {/* ✅ Add fallback */}
                               <div className="flex items-center space-x-4 text-sm text-gray-500">
                                 <span className="flex items-center">
                                   <svg
