@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { Blogs } from '../models/blog.model.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import { Review } from '../models/review.model.js';
 
 const createBlog = asyncHandler(async (req, res) => {
   const { title, content, image, tags, category, description } = req.body;
@@ -86,12 +87,18 @@ const getUserBlogs = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  // ✅ Get blogs for the authenticated user
   const blogs = await Blogs.find({ author: req.user._id })
     .populate('author', '-password -refreshToken')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
+
+  const blogsWithCounts = await Promise.all(
+    blogs.map(async (blog) => {
+      const reviewsCount = await Review.countDocuments({ blog: blog._id });
+      return { ...blog.toObject(), reviewsCount };
+    })
+  );
 
   const total = await Blogs.countDocuments({ author: req.user._id });
 
@@ -99,7 +106,7 @@ const getUserBlogs = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        blogs,
+        blogs: blogsWithCounts,
         pagination: {
           page,
           limit,
