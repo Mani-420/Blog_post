@@ -7,7 +7,8 @@ import mongoose from 'mongoose';
 
 // Create or update a review (Protected route)
 const createOrUpdateReview = asyncHandler(async (req, res) => {
-  const { rating, comment, blogId } = req.body;
+  const { rating, comment } = req.body;
+  const { blogId } = req.params;
 
   if (!rating || rating < 1 || rating > 5) {
     throw new ApiError('Rating must be between 1 and 5', 400);
@@ -78,7 +79,7 @@ const getReviewsByBlog = asyncHandler(async (req, res) => {
 
   // Calculate average rating
   const avgRatingResult = await Review.aggregate([
-    { $match: { blog: mongoose.Types.ObjectId(blogId) } },
+    { $match: { blog: new mongoose.Types.ObjectId(blogId) } },
     { $group: { _id: null, avgRating: { $avg: '$rating' } } }
   ]);
 
@@ -128,9 +129,12 @@ const getUserReview = asyncHandler(async (req, res) => {
 
 // Delete review (Protected route - only author can delete)
 const deleteReview = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { reviewId } = req.params;
 
-  const review = await Review.findById(id);
+  const review = await Review.findById(reviewId).populate(
+    'author',
+    '-password -refreshToken'
+  );
   if (!review) {
     throw new ApiError('Review not found', 404);
   }
@@ -140,7 +144,7 @@ const deleteReview = asyncHandler(async (req, res) => {
     throw new ApiError('Unauthorized: You cannot delete this review', 403);
   }
 
-  await Review.findByIdAndDelete(id);
+  await Review.findByIdAndDelete(reviewId);
 
   return res
     .status(200)
