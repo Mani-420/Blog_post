@@ -23,8 +23,8 @@ const ReviewsSection = ({ blogId }) => {
   const handleAddReview = async (e) => {
     e.preventDefault();
     if (!rating) return;
-    await reviewService.addOrUpdateReview(blogId, { rating, text });
-    setRating(0);
+    await reviewService.addOrUpdateReview(blogId, { rating, comment: text });
+    setRating(1);
     setText('');
     fetchReviews();
   };
@@ -37,20 +37,28 @@ const ReviewsSection = ({ blogId }) => {
       : null;
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold mb-4">Reviews</h3>
-      {averageRating && (
-        <div className="mb-2">
-          Average Rating: <span className="font-bold">{averageRating} / 5</span>
-        </div>
-      )}
+    <section className="mt-10 max-w-2xl mx-auto">
+      <h3 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+        Reviews
+        {averageRating && (
+          <span className="ml-2 text-yellow-500 font-bold text-lg flex items-center">
+            ★ {averageRating}{' '}
+            <span className="text-gray-500 text-base ml-1">/ 5</span>
+          </span>
+        )}
+      </h3>
+
       {isAuthenticated && (
-        <form onSubmit={handleAddReview} className="mb-4 flex flex-col gap-2">
-          <div>
-            <label>Rating: </label>
+        <form
+          onSubmit={handleAddReview}
+          className="mb-6 bg-gray-50 rounded-lg p-4 shadow flex flex-col gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <label className="font-medium text-gray-700">Rating:</label>
             <select
               value={rating}
               onChange={(e) => setRating(Number(e.target.value))}
+              className="border rounded px-2 py-1"
             >
               <option value={0}>Select</option>
               {[1, 2, 3, 4, 5].map((n) => (
@@ -63,36 +71,45 @@ const ReviewsSection = ({ blogId }) => {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="p-2 border rounded"
-            placeholder="Write a review..."
+            className="p-2 border rounded resize-none"
+            placeholder="Write your review..."
+            rows={3}
           />
           <button
             type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="self-end bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded transition"
           >
             Submit Review
           </button>
         </form>
       )}
+
       {loading ? (
-        <div>Loading reviews...</div>
+        <div className="text-center text-gray-500 py-6">Loading reviews...</div>
+      ) : reviews.length === 0 ? (
+        <div className="text-center text-gray-400 py-6">No reviews yet.</div>
       ) : (
-        <ul>
+        <ul className="space-y-4">
           {reviews.map((r) => (
-            <li key={r._id} className="mb-2 border-b pb-2">
-              <div className="font-semibold">
-                {r.author?.username || 'User'}
+            <li
+              key={r._id}
+              className="bg-white rounded-lg shadow p-4 flex flex-col gap-1"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-gray-800">
+                  {r.author?.username || 'User'}
+                </span>
+                <span className="text-yellow-500 text-sm">★ {r.rating}</span>
+                <span className="text-xs text-gray-400 ml-auto">
+                  {new Date(r.createdAt).toLocaleString()}
+                </span>
               </div>
-              <div>Rating: {r.rating} / 5</div>
-              <div>{r.text}</div>
-              <div className="text-xs text-gray-500">
-                {new Date(r.createdAt).toLocaleString()}
-              </div>
+              <div className="text-gray-700">{r.comment}</div>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </section>
   );
 };
 
