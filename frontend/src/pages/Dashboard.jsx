@@ -74,7 +74,7 @@ const Dashboard = () => {
               </p>
             </div>
             <Link
-              to="/create-blog"
+              to="/blogs/create-blog"
               className="mt-4 md:mt-0 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
             >
               <svg
@@ -178,14 +178,14 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">
-                  Total Comments
+                  Total Reviews
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Array.isArray(userBlogs)
                     ? userBlogs
                         .filter((blog) => blog && typeof blog === 'object')
                         .reduce(
-                          (total, blog) => total + (blog?.commentsCount || 0),
+                          (total, blog) => total + (blog?.reviewsCount || 0),
                           0
                         )
                     : 0}
@@ -277,7 +277,7 @@ const Dashboard = () => {
                                       d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
                                     ></path>
                                   </svg>
-                                  {blog?.commentsCount || 0} comments
+                                  {blog?.reviewsCount || 0} reviews
                                 </span>
                                 <span>
                                   Created:{' '}
@@ -325,7 +325,7 @@ const Dashboard = () => {
                       Start sharing your thoughts with the world!
                     </p>
                     <Link
-                      to="/create-blog"
+                      to="/blogs/create-blog"
                       className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Write Your First Blog

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { shuffleArray } from '../utils/helpers.js';
 import {
   setBlogsLoading,
   setBlogsSuccess,
@@ -137,7 +138,13 @@ const Home = () => {
           {!isLoading && !error && (
             <>
               {Array.isArray(blogs) && blogs.length > 0 ? (
-                <BlogList blogs={blogs} />
+                (() => {
+                  const recentCount = 2;
+                  const recentBlogs = blogs.slice(0, recentCount);
+                  const otherBlogs = shuffleArray(blogs.slice(recentCount));
+                  const mixedBlogs = [...recentBlogs, ...otherBlogs];
+                  return <BlogList blogs={mixedBlogs} />;
+                })()
               ) : (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">📝</div>
