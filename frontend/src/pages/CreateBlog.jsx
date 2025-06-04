@@ -29,9 +29,12 @@ const CreateBlog = () => {
   const handleGenerateContent = async () => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/v1/ai/generate-content', {
-        prompt: `Write a blog post about: ${formData.title}`
-      });
+      const res = await axios.post(
+        'http://localhost:8080/api/v1/ai/generate-content',
+        {
+          prompt: `Write a blog post about: ${formData.title}`
+        }
+      );
       setFormData((prev) => ({
         ...prev,
         content: res.data.content.trim()
