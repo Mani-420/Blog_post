@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Editor } from '@tinymce/tinymce-react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 import {
   createBlogSuccess,
   setCreatingBlog,
@@ -14,7 +13,6 @@ import { blogService } from '../services/blogService';
 const CreateBlog = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
   const { isCreating, error } = useSelector((state) => state.blogs);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
@@ -23,28 +21,9 @@ const CreateBlog = () => {
     description: '',
     content: '',
     category: '',
-    tags: ''
+    tags: '',
+    image: null
   });
-
-  const handleGenerateContent = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.post(
-        'http://localhost:8080/api/v1/ai/generate-content',
-        {
-          prompt: `Write a blog post about: ${formData.title}`
-        }
-      );
-      setFormData((prev) => ({
-        ...prev,
-        content: res.data.content.trim()
-      }));
-    } catch (error) {
-      console.error(error?.response?.data || error.message);
-      alert('AI generation failed');
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -86,20 +65,18 @@ const CreateBlog = () => {
 
     try {
       // Prepare data for backend
-      const blogData = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        content: formData.content,
-        category: formData.category.trim() || ['General'],
-        tags: formData.tags.trim()
-          ? formData.tags
-              .split(',')
-              .map((tag) => tag.trim())
-              .filter((tag) => tag)
-          : []
-      };
 
-      const response = await blogService.createBlog(blogData);
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title.trim());
+      formDataToSend.append('description', formData.description.trim());
+      formDataToSend.append('content', formData.content);
+      formDataToSend.append('category', formData.category.trim());
+      formDataToSend.append('tags', formData.tags.trim());
+      if (formData.image) {
+        formDataToSend.append('image', formData.image);
+      }
+
+      const response = await blogService.createBlog(formDataToSend);
       dispatch(createBlogSuccess(response.data.blog));
 
       toast.success('Blog created successfully');
@@ -247,6 +224,19 @@ const CreateBlog = () => {
           >
             {loading ? 'Generating...' : 'Generate Content with AI'}
           </button> */}
+
+          {/* Image Upload */}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                image: e.target.files[0]
+              }))
+            }
+          />
 
           {/* Content - TinyMCE Editor */}
           <div className="mb-8">
