@@ -11,7 +11,17 @@ export const blogService = {
   getUserBlogs: () => api.get('/blogs/user'),
 
   // CRUD operations
-  createBlog: (blogData) => api.post('/blogs/create-blog', blogData),
-  updateBlog: (id, blogData) => api.put(`/blogs/edit-blog/${id}`, blogData),
+  createBlog: (blogData) =>
+    api.post('/blogs/create-blog', blogData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }),
+  updateBlog: (id, blogData) =>
+    api.put(`/blogs/edit-blog/${id}`, blogData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }),
   deleteBlog: (id) => api.delete(`/blogs/${id}`)
 };
