@@ -9,12 +9,18 @@ import {
   getUserBlogs
 } from '../controllers/blog.controller.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
+import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
 router.route('/').get(getAllBlogs);
 router.route('/user').get(verifyJWT, getUserBlogs); // Protected route
-router.route('/create-blog').post(verifyJWT, createBlog); // Protected route
+router.post(
+  '/create-blog',
+  verifyJWT, // authentication middleware
+  upload.single('image'), // multer middleware for image upload
+  createBlog // controller
+);
 router.route('/author/:authorId').get(getBlogsByAuthor);
 
 router.route('/:id').get(getBlog);
