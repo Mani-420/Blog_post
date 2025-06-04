@@ -18,6 +18,17 @@ const BlogCard = ({ blog }) => {
 
   return (
     <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      {/* Blog Image */}
+      {blog.image && (
+        <Link to={`/view-blog/${blog._id}`}>
+          <img
+            src={`http://localhost:8080${blog.image}`}
+            alt={blog.title}
+            className="w-full h-48 object-cover"
+          />
+        </Link>
+      )}
+
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
