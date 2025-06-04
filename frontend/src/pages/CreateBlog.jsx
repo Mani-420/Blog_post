@@ -39,8 +39,8 @@ const CreateBlog = () => {
         ...prev,
         content: res.data.content.trim()
       }));
-    } catch (err) {
-      console.error(error.response?.data || error.message);
+    } catch (error) {
+      console.error(error?.response?.data || error.message);
       alert('AI generation failed');
     }
     setLoading(false);
@@ -239,14 +239,14 @@ const CreateBlog = () => {
 
           {/* AI Content Generation Button */}
 
-          <button
+          {/* <button
             type="button"
             onClick={handleGenerateContent}
             disabled={loading || !formData.title}
             className="mb-6 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded transition"
           >
             {loading ? 'Generating...' : 'Generate Content with AI'}
-          </button>
+          </button> */}
 
           {/* Content - TinyMCE Editor */}
           <div className="mb-8">
