@@ -175,6 +175,18 @@ const ViewBlog = () => {
             {currentBlog.title}
           </h1>
 
+          {/* Image */}
+
+          {currentBlog.image && (
+            <div className="mb-6">
+              <img
+                src={`http://localhost:8080${currentBlog.image}`}
+                alt={currentBlog.title}
+                style={{ maxWidth: '100%', borderRadius: '8px' }}
+              />
+            </div>
+          )}
+
           {/* Author & Meta Info */}
           <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
             <div className="flex items-center">

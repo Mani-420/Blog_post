@@ -18,6 +18,8 @@ const EditBlog = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [image, setImage] = useState(null);
+  const [currentImage, setCurrentImage] = useState('');
 
   const { currentBlog, isUpdating, isLoading, error } = useSelector(
     (state) => state.blogs
@@ -68,6 +70,7 @@ const EditBlog = () => {
         category: currentBlog.category || '',
         tags: currentBlog.tags ? currentBlog.tags.join(', ') : ''
       });
+      setCurrentImage(currentBlog.image || '');
       setIsFormReady(true);
     }
   }, [currentBlog, user, navigate]);
@@ -117,20 +120,28 @@ const EditBlog = () => {
     dispatch(setBlogError(null));
 
     try {
-      const blogData = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        content: formData.content,
-        category: formData.category.trim() || 'Uncategorized',
-        tags: formData.tags.trim()
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title.trim());
+      formDataToSend.append('description', formData.description.trim());
+      formDataToSend.append('content', formData.content);
+      formDataToSend.append(
+        'category',
+        formData.category.trim() || 'Uncategorized'
+      );
+      formDataToSend.append(
+        'tags',
+        formData.tags.trim()
           ? formData.tags
               .split(',')
               .map((tag) => tag.trim())
               .filter((tag) => tag)
           : ''
-      };
+      );
+      if (image) {
+        formDataToSend.append('image', image);
+      }
 
-      const response = await blogService.updateBlog(id, blogData);
+      const response = await blogService.updateBlog(id, formDataToSend);
       dispatch(updateBlogSuccess(response.data.data?.blog));
 
       toast.success('Blog updated successfully');
@@ -339,6 +350,29 @@ const EditBlog = () => {
             <p className="text-sm text-gray-500 mt-2">
               Use the toolbar above to format your content with headers, bold
               text, lists, links, and more.
+            </p>
+          </div>
+
+          {/* Image Upload */}
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current Image
+            </label>
+            {currentImage && (
+              <img
+                src={`http://localhost:8080${currentImage}`}
+                alt="Current"
+                style={{ width: 200, marginBottom: 10 }}
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Upload a new image to replace the current one.
             </p>
           </div>
 

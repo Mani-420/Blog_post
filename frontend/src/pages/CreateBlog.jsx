@@ -13,6 +13,7 @@ import { blogService } from '../services/blogService';
 const CreateBlog = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [imagePreview, setImagePreview] = useState(null);
   const { isCreating, error } = useSelector((state) => state.blogs);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
@@ -85,7 +86,8 @@ const CreateBlog = () => {
         description: '',
         content: '',
         category: '',
-        tags: ''
+        tags: '',
+        image: null
       });
       navigate('/dashboard');
     } catch (error) {
@@ -216,27 +218,47 @@ const CreateBlog = () => {
 
           {/* AI Content Generation Button */}
 
-          {/* <button
-            type="button"
-            onClick={handleGenerateContent}
-            disabled={loading || !formData.title}
-            className="mb-6 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded transition"
-          >
-            {loading ? 'Generating...' : 'Generate Content with AI'}
-          </button> */}
-
           {/* Image Upload */}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                image: e.target.files[0]
-              }))
-            }
-          />
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Blog Image
+            </label>
+            <label
+              htmlFor="image-upload"
+              className="inline-block bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
+            >
+              {formData.image ? 'Change Image' : 'Upload Image'}
+            </label>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setFormData((prev) => ({
+                  ...prev,
+                  image: file
+                }));
+                setImagePreview(file ? URL.createObjectURL(file) : null);
+              }}
+            />
+            {formData.image && (
+              <div className="mt-2 text-sm text-gray-600">
+                Selected: {formData.image.name}
+              </div>
+            )}
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-32 rounded border border-gray-200 object-cover"
+                />
+              </div>
+            )}
+          </div>
 
           {/* Content - TinyMCE Editor */}
           <div className="mb-8">

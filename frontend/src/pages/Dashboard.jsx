@@ -228,6 +228,16 @@ const Dashboard = () => {
                           className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
                         >
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                            {/* Blog Image */}
+                            {blog.image && (
+                              <div className="mb-4 md:mb-0 md:mr-6 w-full md:w-48 flex-shrink-0">
+                                <img
+                                  src={`http://localhost:8080${blog.image}`}
+                                  alt={blog.title}
+                                  className="w-full h-32 object-cover rounded"
+                                />
+                              </div>
+                            )}
                             <div className="flex-1">
                               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                 {blog?.title || 'Untitled'}{' '}
