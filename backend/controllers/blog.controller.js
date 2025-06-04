@@ -11,16 +11,19 @@ const createBlog = asyncHandler(async (req, res) => {
     throw new ApiError('Title and content are required', 400);
   }
 
+  const imageUrl = req.file
+    ? `/uploads/${req.file.filename}`
+    : 'No image provided';
+
   const blog = await Blogs.create({
     title,
     content,
-    image: image || 'No image provided',
+    image: imageUrl || 'No image provided',
     author: req.user._id,
     tags: tags || [],
     category: category || 'General',
     description: description || 'No description provided',
     views: 0,
-    commentsCount: 0,
     reviewsCount: 0
   });
 
@@ -157,7 +160,10 @@ const updateBlog = asyncHandler(async (req, res) => {
 
   blog.title = title;
   blog.content = content;
-  blog.image = image || blog.image;
+  // Update image if a new file is uploaded
+  if (req.file) {
+    blog.image = `/uploads/${req.file.filename}`;
+  }
   blog.tags = tags || blog.tags;
   blog.category = category || blog.category;
   blog.description = description || blog.description;
