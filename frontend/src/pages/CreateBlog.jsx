@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Editor } from '@tinymce/tinymce-react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import {
   createBlogSuccess,
   setCreatingBlog,
@@ -13,6 +14,7 @@ import { blogService } from '../services/blogService';
 const CreateBlog = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const { isCreating, error } = useSelector((state) => state.blogs);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
@@ -23,6 +25,23 @@ const CreateBlog = () => {
     category: '',
     tags: ''
   });
+
+  const handleGenerateContent = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post('/api/v1/ai/generate-content', {
+        prompt: `Write a blog post about: ${formData.title}`
+      });
+      setFormData((prev) => ({
+        ...prev,
+        content: res.data.content.trim()
+      }));
+    } catch (err) {
+      console.error(error.response?.data || error.message);
+      alert('AI generation failed');
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -214,6 +233,17 @@ const CreateBlog = () => {
               </p>
             </div>
           </div>
+
+          {/* AI Content Generation Button */}
+
+          <button
+            type="button"
+            onClick={handleGenerateContent}
+            disabled={loading || !formData.title}
+            className="mb-6 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded transition"
+          >
+            {loading ? 'Generating...' : 'Generate Content with AI'}
+          </button>
 
           {/* Content - TinyMCE Editor */}
           <div className="mb-8">
