@@ -16,6 +16,7 @@ import CreateBlog from './pages/CreateBlog';
 import EditBlog from './pages/EditBlog';
 import ViewBlog from './pages/ViewBlog';
 import NotFound from './pages/NotFound';
+import DonatePage from './pages/DonatePage';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
               }
             />
 
+            <Route path="/donate/:blogId" element={<DonatePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
