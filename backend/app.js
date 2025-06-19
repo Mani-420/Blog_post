@@ -25,12 +25,14 @@ import blogRoute from './routes/blogs.route.js';
 // import commentRoute from './routes/comments.route.js';
 import reviewRoute from './routes/reviews.route.js';
 import aiRoutes from './routes/ai.routes.js';
+import donateRoute from './routes/donate.route.js';
 
 // Routes Declaration
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/blogs', blogRoute);
 app.use('/api/v1/blogs/:blogId/reviews', reviewRoute);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/donate', donateRoute);
 
 // 404 handler for unknown API routes
 app.use((req, res, next) => {
