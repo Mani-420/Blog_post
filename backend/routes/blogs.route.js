@@ -24,7 +24,9 @@ router.post(
 router.route('/author/:authorId').get(getBlogsByAuthor);
 
 router.route('/:id').get(getBlog);
-router.route('/edit-blog/:id').put(verifyJWT, updateBlog); // Protected route
+router
+  .route('/edit-blog/:id')
+  .put(verifyJWT, upload.single('image'), updateBlog); // Protected route
 router.route('/:id').delete(verifyJWT, deleteBlog); // Protected route
 
 export default router;
