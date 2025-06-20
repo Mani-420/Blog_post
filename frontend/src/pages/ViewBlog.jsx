@@ -185,33 +185,6 @@ const ViewBlog = () => {
             </div>
           )}
 
-          <div className="mb-6 flex justify-center">
-            <Link
-              to={`/donate/${currentBlog._id}`}
-              className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-2 rounded-lg shadow transition-colors duration-200 border border-yellow-300 justify-center"
-            >
-              <svg
-                className="w-5 h-5 text-gray-900"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 8c-1.657 0-3 1.343-3 3 0 2.25 3 5 3 5s3-2.75 3-5c0-1.657-1.343-3-3-3z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 2a10 10 0 100 20 10 10 0 000-20z"
-                />
-              </svg>
-              Support Author
-            </Link>
-          </div>
-
           {/* Author & Meta Info */}
           <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
             <div className="flex items-center">
