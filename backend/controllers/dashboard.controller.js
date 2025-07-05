@@ -1,7 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { Blogs } from '../models/blog.model.js';
-import { Comment } from '../models/comment.model.js';
+// import { Comment } from '../models/comment.model.js';
 import { Review } from '../models/review.model.js';
 
 const getDashboardStats = asyncHandler(async (req, res) => {
@@ -18,9 +18,9 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   const totalViews = userBlogs.reduce((sum, blog) => sum + blog.views, 0);
 
   // Total comments on user's blogs
-  const totalComments = await Comment.countDocuments({
-    blog: { $in: blogIds }
-  });
+  // const totalComments = await Comment.countDocuments({
+  //   blog: { $in: blogIds }
+  // });
 
   // Total reviews on user's blogs
   const totalReviews = await Review.countDocuments({
