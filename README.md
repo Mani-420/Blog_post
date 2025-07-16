@@ -1,6 +1,29 @@
 # 📝 Blog Sharing Platform
-
 A full-stack MERN (MongoDB, Express.js, React, Node.js) blog sharing platform where users can create, read, update, and delete blog posts with authentication, rich text editing, and review system.
+
+## 🎥 Demo Video
+
+Uploading Blog Post Video.mp4…
+
+## 📸 Screenshots
+
+![Image](https://github.com/user-attachments/assets/3215dc3c-6356-438a-b887-8361d6d717a5)
+
+![Image](https://github.com/user-attachments/assets/c5de1df8-41f1-4495-8785-74f288ea6397)
+
+![Image](https://github.com/user-attachments/assets/84553aa1-49bb-4ef4-b868-9112ab77a8b9)
+
+![Image](https://github.com/user-attachments/assets/7fb7fe3d-f807-4b4a-b89c-00b3a60640e6)
+
+![Image](https://github.com/user-attachments/assets/ea94b554-1aca-4a32-8731-bc2f175520f1)
+
+![Image](https://github.com/user-attachments/assets/e763ac81-2087-416c-a9b4-4fbe6be85e13)
+
+![Image](https://github.com/user-attachments/assets/9c9a750c-ad7c-45d8-8ec2-002b22797aa8)
+
+![Image](https://github.com/user-attachments/assets/4da48ca9-1f74-4f9e-a2ef-d40b3871793d)
+
+![Image](https://github.com/user-attachments/assets/2d6148d8-0b69-4cbf-8952-a702c112dd11)
 
 ## 🌟 Features
 
@@ -40,7 +63,7 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) blog sharing platform wh
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** - UI library
+- **React 19** - UI library
 - **Vite** - Build tool and dev server
 - **Redux Toolkit** - State management
 - **React Router** - Client-side routing
@@ -146,29 +169,6 @@ Blog_post/
 └── README.md
 ```
 
-## 📸 Screenshots
-
-### Home Page
-![Home Page](./screenshots/home-page.png)
-
-### Blog Creation
-![Create Blog](./screenshots/create-blog.png)
-
-### Blog Detail View
-![Blog Detail](./screenshots/blog-detail.png)
-
-### User Dashboard
-![Dashboard](./screenshots/dashboard.png)
-
-### Login Page
-![Login](./screenshots/login.png)
-
-### Registration Page
-![Register](./screenshots/register.png)
-
-## 🎥 Demo Video
-
-[Watch the demo video](./demo/blog-platform-demo.mp4)
 
 ## 🔧 API Endpoints
 
@@ -254,23 +254,10 @@ The application is fully responsive and works seamlessly on:
 - [ ] Real-time notifications
 - [ ] Blog analytics dashboard
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
 
 **Mani-420**
 - GitHub: [@Mani-420](https://github.com/Mani-420)
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/your-profile)
+- LinkedIn: https://www.linkedin.com/in/abdul-rehman-7068aa315/
 - Email: your.email@example.com
 
 ## 🙏 Acknowledgments
