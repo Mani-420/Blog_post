@@ -3,7 +3,8 @@ A full-stack MERN (MongoDB, Express.js, React, Node.js) blog sharing platform wh
 
 ## 🎥 Demo Video
 
-Uploading Blog Post Video.mp4…
+https://github.com/user-attachments/assets/c25573ce-bcc9-4386-89cd-b59eb90600c6
+
 
 ## 📸 Screenshots
 
